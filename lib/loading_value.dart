@@ -2,11 +2,6 @@ library loading_value;
 
 import 'package:meta/meta.dart';
 
-/// Utility for `.name` of provider modifiers.
-String? modifierName(String? from, String modifier) {
-  return from == null ? null : '$from.$modifier';
-}
-
 /// An utility for safely manipulating asynchronous data.
 ///
 /// By using [LoadingValue], you are guaranteed that you cannot forget to
@@ -48,12 +43,6 @@ String? modifierName(String? from, String modifier) {
 ///   return Text('Hello ${user.name}');
 /// }
 /// ```
-///
-/// See also:
-///
-/// - [FutureProvider] and [StreamProvider], which transforms a [Future] into
-///   an [LoadingValue].
-/// - [LoadingValue.guardFuture], to simplify transforming a [Future] into an [LoadingValue].
 @sealed
 @immutable
 abstract class LoadingValue<T> {
