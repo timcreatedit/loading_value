@@ -355,16 +355,18 @@ class ValueLoading<T> implements LoadingValue<T> {
 
   @override
   String toString() {
-    return 'ValueLoading<$T>()';
+    return 'ValueLoading<$T>($progress)';
   }
 
   @override
   bool operator ==(Object other) {
-    return runtimeType == other.runtimeType;
+    return other is ValueLoading &&
+        other.progress == progress &&
+        other.runtimeType == runtimeType;
   }
 
   @override
-  int get hashCode => runtimeType.hashCode;
+  int get hashCode => Object.hash(runtimeType, progress);
 }
 
 /// Creates an [LoadingValue] in error state.
