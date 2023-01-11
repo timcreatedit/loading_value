@@ -2,10 +2,7 @@ library loading_value;
 
 import 'package:meta/meta.dart';
 
-/// Utility for `.name` of provider modifiers.
-String? modifierName(String? from, String modifier) {
-  return from == null ? null : '$from.$modifier';
-}
+typedef Canceller = void Function();
 
 /// An utility for safely manipulating asynchronous data.
 ///
@@ -48,12 +45,6 @@ String? modifierName(String? from, String modifier) {
 ///   return Text('Hello ${user.name}');
 /// }
 /// ```
-///
-/// See also:
-///
-/// - [FutureProvider] and [StreamProvider], which transforms a [Future] into
-///   an [LoadingValue].
-/// - [LoadingValue.guardFuture], to simplify transforming a [Future] into an [LoadingValue].
 @sealed
 @immutable
 abstract class LoadingValue<T> {
@@ -70,7 +61,10 @@ abstract class LoadingValue<T> {
   /// Prefer always using this constructor with the `const` keyword.
   /// [progress] will be clamped between 0 and 1
   // coverage:ignore-start
-  const factory LoadingValue.loading(double progress) = ValueLoading<T>;
+  const factory LoadingValue.loading(
+    double progress, {
+    Canceller? canceller,
+  }) = ValueLoading<T>;
 
   // coverage:ignore-end
 
@@ -346,7 +340,7 @@ class ValueLoading<T> implements LoadingValue<T> {
   /// Creates an [LoadingValue] in loading state.
   /// [progress] will be clamped between 0 and 1
   /// Prefer always using this constructor with the `const` keyword.
-  const ValueLoading(double progress)
+  const ValueLoading(double progress, {this.canceller})
       : progress = progress > 1
             ? 1
             : progress < 0
@@ -354,6 +348,12 @@ class ValueLoading<T> implements LoadingValue<T> {
                 : progress;
 
   final double progress;
+
+  /// An optional function to call if the loading should be cancelled.
+  ///
+  /// If this is null, the process that is emitting this [LoadingValue] is not
+  /// cancellable.
+  final Canceller? canceller;
 
   @override
   R _map<R>({
@@ -366,16 +366,18 @@ class ValueLoading<T> implements LoadingValue<T> {
 
   @override
   String toString() {
-    return 'ValueLoading<$T>()';
+    return 'ValueLoading<$T>($progress)';
   }
 
   @override
   bool operator ==(Object other) {
-    return runtimeType == other.runtimeType;
+    return other is ValueLoading &&
+        other.progress == progress &&
+        other.runtimeType == runtimeType;
   }
 
   @override
-  int get hashCode => runtimeType.hashCode;
+  int get hashCode => Object.hash(runtimeType, progress);
 }
 
 /// Creates an [LoadingValue] in error state.

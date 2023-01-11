@@ -1,6 +1,6 @@
 name: loading_value
 description: A declarative implementation of a loading value
-version: 0.0.1
+version: 0.0.3
 repository: https://github.com/timcreatedit/loading_value
 
 environment:
